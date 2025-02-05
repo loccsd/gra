@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRA Scoring</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GRA Scoring</h1>
+        
+        <label for="grade">Select Grade:</label>
+        <select id="grade" onchange="updateAssessmentInfo()">
+            <option value="" selected disabled>-- Select Grade --</option>
+            <option value="4">Grade 4</option>
+            <option value="5">Grade 5</option>
+            <option value="6">Grade 6</option>
+            <option value="7">Grade 7</option>
+            <option value="8">Grade 8</option>
+            <option value="9">Grade 9</option>
+        </select>
+        <br>
+        <label for="category">Select Category:</label>
+        <select id="category" onchange="updateAssessmentInfo()">
+            <option value="" selected disabled>-- Select Category --</option>
+            <option value="NF">Non-Fiction</option>
+            <option value="F">Fiction</option>
+        </select>
+        
+        <p><strong>Passage Title:</strong> <span id="passageTitle">Choose a Grade and Category</span></p>
+        <p><strong>Word Count:</strong> <span id="wordCount">0</span></p>
+        
+        <p id="timer">00:00</p>
+        <button id="startButton" onclick="startTimer()" disabled>Start</button>
+        <button onclick="pauseTimer()">Pause</button>
+        <button onclick="resetTimer()">Reset</button>
+        <br><br>
+        <label>Fluency Errors:</label>
+        <input type="number" id="fluencyErrors" disabled>
+        <br><br>
+        <label>Comprehension Score:</label>
+        <input type="number" id="comprehensionScore" disabled>
+        <br><br>
+        <button onclick="calculateScore()">Calculate Score</button>
+        <p><strong>Accuracy:</strong> <span id="accuracy">-</span>%</p>
+        <p><strong>Words Per Minute:</strong> <span id="wpm">-</span></p>
+        <p><strong>Reading Level:</strong> <span id="readingLevel">-</span></p>
+    </div>
+    
+    <script>
+        let timerInterval;
+        let startTime;
+        let elapsedTime = 0;
+        let isRunning = false;
+
+        function updateTimerDisplay() {
+            let totalMilliseconds = Date.now() - startTime + elapsedTime;
+            let totalSeconds = Math.floor(totalMilliseconds / 1000);
+            let minutes = Math.floor(totalSeconds / 60);
+            let seconds = totalSeconds % 60;
+            document.getElementById("timer").textContent = 
+                String(minutes).padStart(2, '0') + ":" + 
+                String(seconds).padStart(2, '0');
+        }
+
+        function startTimer() {
+            if (!isRunning) {
+                startTime = Date.now();
+                timerInterval = setInterval(updateTimerDisplay, 1000);
+                isRunning = true;
+                document.getElementById("fluencyErrors").disabled = false;
+                document.getElementById("comprehensionScore").disabled = false;
+            }
+        }
+
+        function pauseTimer() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                elapsedTime += Date.now() - startTime;
+                isRunning = false;
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            elapsedTime = 0;
+            isRunning = false;
+            document.getElementById("timer").textContent = "00:00";
+            document.getElementById("fluencyErrors").disabled = true;
+            document.getElementById("comprehensionScore").disabled = true;
+        }
+
+        function updateAssessmentInfo() {
+            const grade = document.getElementById("grade").value;
+            const category = document.getElementById("category").value;
+            
+            if (grade && category) {
+                const assessmentData = {
+                    4: { "NF": { title: "Letting in Light", wordCount: 212 }, "F": { title: "Clean Dog Boogie", wordCount: 215 } },
+                    5: { "NF": { title: "Your New ID", wordCount: 191 }, "F": { title: "Sisterlist", wordCount: 197 } },
+                    6: { "NF": { title: "From Space Down to Earth", wordCount: 193 }, "F": { title: "A Trip to the Past", wordCount: 241 } },
+                    7: { "NF": { title: "Your Ad Here", wordCount: 248 }, "F": { title: "In an Instant", wordCount: 242 } },
+                    8: { "NF": { title: "I Have Down Syndrome", wordCount: 239 }, "F": { title: "Change of Heart", wordCount: 205 } },
+                    9: { "NF": { title: "Take Only What You Need", wordCount: 204 }, "F": { title: "Not Ever Again", wordCount: 227 } }
+                };
+                
+                document.getElementById("passageTitle").textContent = assessmentData[grade][category].title;
+                document.getElementById("wordCount").textContent = assessmentData[grade][category].wordCount;
+                document.getElementById("startButton").disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
