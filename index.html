@@ -30,7 +30,7 @@
         
         <label for="grade">Select Grade:</label>
         <select id="grade" onchange="updateAssessmentInfo()">
-            <option value="" selected disabled>-- Select Grade --</option>
+            <option value="">-- Select Grade --</option>
             <option value="4">Grade 4</option>
             <option value="5">Grade 5</option>
             <option value="6">Grade 6</option>
@@ -41,7 +41,7 @@
         <br>
         <label for="category">Select Category:</label>
         <select id="category" onchange="updateAssessmentInfo()">
-            <option value="" selected disabled>-- Select Category --</option>
+            <option value="">-- Select Category --</option>
             <option value="NF">Non-Fiction</option>
             <option value="F">Fiction</option>
         </select>
@@ -112,21 +112,37 @@
         function updateAssessmentInfo() {
             const grade = document.getElementById("grade").value;
             const category = document.getElementById("category").value;
+            document.getElementById("startButton").disabled = !(grade && category);
+            
+            const assessmentData = {
+                4: { "NF": { title: "Letting in Light", wordCount: 212 }, "F": { title: "Clean Dog Boogie", wordCount: 215 } },
+                5: { "NF": { title: "Your New ID", wordCount: 191 }, "F": { title: "Sisterlist", wordCount: 197 } },
+                6: { "NF": { title: "From Space Down to Earth", wordCount: 193 }, "F": { title: "A Trip to the Past", wordCount: 241 } },
+                7: { "NF": { title: "Your Ad Here", wordCount: 248 }, "F": { title: "In an Instant" }, "F": { title: "In an Instant", wordCount: 242 } },
+                8: { "NF": { title: "I Have Down Syndrome", wordCount: 239 }, "F": { title: "Change of Heart", wordCount: 205 } },
+                9: { "NF": { title: "Take Only What You Need", wordCount: 204 }, "F": { title: "Not Ever Again", wordCount: 227 } }
+            };
             
             if (grade && category) {
-                const assessmentData = {
-                    4: { "NF": { title: "Letting in Light", wordCount: 212 }, "F": { title: "Clean Dog Boogie", wordCount: 215 } },
-                    5: { "NF": { title: "Your New ID", wordCount: 191 }, "F": { title: "Sisterlist", wordCount: 197 } },
-                    6: { "NF": { title: "From Space Down to Earth", wordCount: 193 }, "F": { title: "A Trip to the Past", wordCount: 241 } },
-                    7: { "NF": { title: "Your Ad Here", wordCount: 248 }, "F": { title: "In an Instant", wordCount: 242 } },
-                    8: { "NF": { title: "I Have Down Syndrome", wordCount: 239 }, "F": { title: "Change of Heart", wordCount: 205 } },
-                    9: { "NF": { title: "Take Only What You Need", wordCount: 204 }, "F": { title: "Not Ever Again", wordCount: 227 } }
-                };
-                
                 document.getElementById("passageTitle").textContent = assessmentData[grade][category].title;
                 document.getElementById("wordCount").textContent = assessmentData[grade][category].wordCount;
-                document.getElementById("startButton").disabled = false;
             }
+        }
+
+        function calculateScore() {
+            const wordCount = parseInt(document.getElementById("wordCount").textContent) || 0;
+            const fluencyErrors = parseInt(document.getElementById("fluencyErrors").value) || 0;
+            const comprehension = parseInt(document.getElementById("comprehensionScore").value) || 0;
+            
+            const accuracy = Math.round(100 * (wordCount - fluencyErrors) / wordCount * 100) / 100;
+            const wpm = elapsedTime ? Math.floor((wordCount * 60000) / elapsedTime) : 0;
+            
+            let readingLevel = accuracy >= 98 ? (comprehension >= 9 ? "Independent" : comprehension >= 5 ? "Instructional" : "Hard") : 
+                              accuracy >= 95 ? (comprehension >= 7 ? "Instructional" : "Hard") : "Hard";
+            
+            document.getElementById("accuracy").textContent = accuracy;
+            document.getElementById("wpm").textContent = wpm;
+            document.getElementById("readingLevel").textContent = readingLevel;
         }
     </script>
 </body>
